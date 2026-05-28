@@ -1,301 +1,249 @@
 ````md
-# ⚔️ Wumpus World AI Game
+# Serene 🌿 — AI Mental Health Chatbot
 
-An advanced AI-powered implementation of the classic **Wumpus World** environment built using Python and Pygame.
+Serene is an intelligent AI-powered mental health chatbot designed to provide empathetic emotional support and guided therapeutic conversations.
 
-This project combines:
+The project combines multiple Artificial Intelligence concepts including:
 
-- 🎮 Interactive Game Design
-- 🧠 Artificial Intelligence
-- 🔍 Knowledge-Based Reasoning
-- 🤖 Autonomous AI Agent
-- 📊 Probabilistic Inference
-- 🎨 Modern Visual Effects
-- 🔊 Procedural Sound Synthesis
+- 🧠 Intelligent Agents (PEAS Model)
+- 🔍 Bi-Directional Search
+- 🧬 Genetic Algorithms
+- 🤖 LLM Integration (Groq + Llama 3.1)
+- 💬 Emotion Detection & Conversational AI
 
-The game features both **manual gameplay** and an intelligent **AI Solver Agent** capable of navigating the dangerous cave using logical reasoning and probabilistic decision-making.
+The chatbot analyzes user emotions, plans emotional progression toward a calm mental state, and generates compassionate responses dynamically.
 
 ---
 
-# 🌟 Features
+# 🚀 Features
 
-- Fully playable Wumpus World game
-- AI-powered autonomous agent
-- Knowledge Base reasoning system
-- Probabilistic danger estimation
-- BFS pathfinding
-- Intelligent arrow shooting
-- Dynamic world generation
-- Animated particle effects
-- Procedural sound generation
-- Modern glowing UI
-- Fog-of-war system
-- Heatmap danger visualization
-- Real-time AI path highlighting
-- Score tracking system
+- Emotion detection from user messages
+- AI-powered empathetic conversation
+- Crisis support detection
+- Emotional state tracking
+- Therapy path planning using Bi-Directional Search
+- Genetic Algorithm optimized responses
+- Groq API integration using Llama 3.1
+- Session-based memory
+- REST API backend with Flask
+- Fallback response system when API is unavailable
 
 ---
 
 # 🧠 AI Concepts Used
 
-## 1. Knowledge-Based Agent
+## 1. Intelligent Agent (PEAS Model)
 
-The AI agent stores observations and infers safe/dangerous locations.
+The chatbot is implemented as a Goal-Based Intelligent Agent.
 
-The agent reasons using:
+### PEAS Description
 
-- Breeze detection
-- Stench detection
-- Safe cell inference
-- Frontier exploration
-- Risk estimation
+| Component | Description |
+|---|---|
+| Performance Measure | Move user toward calm emotional state |
+| Environment | User conversation & emotional context |
+| Actuators | Therapeutic responses & coping strategies |
+| Sensors | Emotion detection & sentiment analysis |
 
-### AI Processing Cycle
+---
+
+## 2. Bi-Directional Search
+
+The emotional state graph is traversed using Bi-Directional Search to find the shortest therapeutic path from the current emotional state to the goal state (`calm`).
+
+### Example Emotional Flow
 
 ```text
-Observe → Infer → Plan → Act
+depressed → sad → neutral → okay → calm
 ````
 
----
+This allows the chatbot to:
 
-## 2. Probabilistic Reasoning
-
-The AI calculates danger probabilities for unknown cells.
-
-### Pit Probability
-
-The probability increases when nearby visited cells contain breezes.
-
-### Wumpus Probability
-
-The probability increases when nearby visited cells contain stenches.
-
-This allows the AI to:
-
-* Estimate risks
-* Choose safer paths
-* Avoid dangerous exploration
+* Plan emotional progression
+* Suggest next therapeutic action
+* Track conversation improvement
 
 ---
 
-## 3. Breadth-First Search (BFS)
+## 3. Genetic Algorithm
 
-BFS is used for:
+A Genetic Algorithm evolves the chatbot’s response strategy dynamically.
 
-* Safe pathfinding
-* Navigation planning
-* Finding nearest safe cells
+The GA optimizes:
 
-The AI computes optimal movement paths dynamically.
+* Tone
+* Empathy level
+* Therapeutic technique
+* Question strategy
 
----
+### GA Workflow
 
-## 4. Autonomous Decision Making
-
-The AI agent can:
-
-* Explore the cave automatically
-* Detect possible Wumpus location
-* Shoot arrows intelligently
-* Collect gold
-* Escape safely
-
----
-
-# 🎮 Gameplay
-
-The player explores a dangerous cave searching for gold while avoiding:
-
-* 🕳️ Pits
-* 👹 Wumpus monster
-
-The cave provides clues:
-
-| Clue      | Meaning       |
-| --------- | ------------- |
-| 💨 Breeze | Pit nearby    |
-| 🦨 Stench | Wumpus nearby |
-
-The objective is:
-
-1. Find the gold
-2. Survive the cave
-3. Escape through the start cell
+```text
+Initialize Population
+        ↓
+Evaluate Fitness
+        ↓
+Selection
+        ↓
+Crossover
+        ↓
+Mutation
+        ↓
+Best Therapeutic Strategy
+```
 
 ---
 
 # 🏗️ Project Structure
 
 ```text
-├── wumpus.py
+├── app.py
+├── agent.py
+├── bidirectional_search.py
+├── genetic_algorithm.py
+├── knowledge_base.py
+├── requirements.txt
 ```
 
 ---
 
-# 📂 Main Components
+# 📂 File Explanations
 
-## `KnowledgeBase`
+## `app.py`
+
+Main Flask application.
 
 Handles:
 
-* Environment observations
-* Logical inference
-* Safe cell detection
-* Danger estimation
-* AI planning
+* Routing
+* Session management
+* API endpoints
+* Chat requests
+* Reset functionality
 
-### Stored Information
+### Endpoints
+
+| Route     | Description       |
+| --------- | ----------------- |
+| `/`       | Main UI           |
+| `/chat`   | Send user message |
+| `/status` | API status        |
+| `/reset`  | Reset session     |
+| `/quit`   | Shutdown app      |
+
+---
+
+## `agent.py`
+
+Core AI agent implementation.
+
+Responsible for:
+
+* Perception
+* Emotional state classification
+* Planning
+* Response generation
+* Maintaining conversation history
+
+### Processing Cycle
 
 ```text
-- Visited cells
-- Safe cells
-- Breeze locations
-- Stench locations
-- Pit probabilities
-- Wumpus probabilities
+Perceive → Update State → Plan → Act
 ```
 
 ---
 
-## `ParticleSystem`
+## `bidirectional_search.py`
 
-Creates visual effects:
+Implements the Bi-Directional Search algorithm.
 
-* Explosions
-* Glow effects
-* Gold collection particles
-* Death animations
+Used to:
 
----
-
-## `World Generation`
-
-The cave world is generated randomly:
-
-* Wumpus placement
-* Pit placement
-* Gold placement
-* Clue propagation
+* Find shortest emotional path
+* Suggest therapy transitions
+* Explore emotional graph efficiently
 
 ---
 
-## `AI Solver`
+## `genetic_algorithm.py`
 
-The AI can play automatically using:
+Implements the Genetic Algorithm system.
 
-* Knowledge inference
-* BFS navigation
-* Risk analysis
-* Goal planning
+Features:
 
-Toggle AI using:
+* Response evolution
+* Prompt optimization
+* Tone adaptation
+* Therapeutic technique selection
+
+---
+
+## `knowledge_base.py`
+
+Contains:
+
+* Emotional state graph
+* Keyword mappings
+* Therapy actions
+* Coping strategies
+* Fallback responses
+
+Acts as the chatbot’s knowledge base.
+
+---
+
+# 🔄 System Workflow
 
 ```text
-TAB
+User Message
+      ↓
+Emotion Detection
+      ↓
+State Classification
+      ↓
+Bi-Directional Search Planning
+      ↓
+Genetic Algorithm Optimization
+      ↓
+LLM Response Generation
+      ↓
+Therapeutic Response
 ```
 
 ---
 
-# 🎨 Graphics & UI
+# 🤖 LLM Integration
 
-The game includes:
+The chatbot uses:
 
-* Animated glowing effects
-* Dynamic fog-of-war
-* Heatmap danger visualization
-* Animated breeze & stench effects
-* Smooth player movement
-* Endgame overlays
-* Interactive side panel
+* Groq API
+* Llama 3.1 8B Instant Model
 
----
+The LLM is responsible for:
 
-# 🔊 Audio System
-
-The game generates procedural sound effects dynamically using pure Python.
-
-No external audio files are required.
-
-Generated sounds include:
-
-* Movement
-* Gold collection
-* Arrow shooting
-* Danger alerts
-* Victory sounds
-* Death sounds
+* Human-like responses
+* Emotional understanding
+* Adaptive therapeutic conversation
 
 ---
 
-# 🕹️ Controls
+# 🛡️ Safety Features
 
-| Key               | Action           |
-| ----------------- | ---------------- |
-| WASD / Arrow Keys | Move             |
-| G                 | Grab Gold        |
-| E                 | Escape Cave      |
-| F + Arrow Key     | Shoot Arrow      |
-| TAB               | Toggle AI Solver |
-| R                 | Restart Game     |
-| ESC               | Return to Menu   |
+* Suicide/crisis keyword detection
+* Crisis hotline suggestions
+* Non-diagnostic responses
+* Supportive communication rules
+* Empathy-first response generation
 
 ---
 
-# 📊 Game Mechanics
-
-## Scoring System
-
-| Action           | Score |
-| ---------------- | ----- |
-| Step movement    | -1    |
-| Shoot arrow      | -10   |
-| Kill Wumpus      | +500  |
-| Collect Gold     | +1000 |
-| Escape with Gold | +500  |
-| Death            | -1000 |
-
----
-
-# 🧠 AI Knowledge Representation
-
-The AI maintains:
-
-```text
-Safe Cells
-Dangerous Cells
-Frontier Cells
-Pit Probabilities
-Wumpus Probabilities
-Visited States
-```
-
-This allows intelligent exploration and survival planning.
-
----
-
-# 🔄 AI Decision Workflow
-
-```text
-Observe Environment
-        ↓
-Update Knowledge Base
-        ↓
-Infer Safe/Dangerous Cells
-        ↓
-Find Best Path (BFS)
-        ↓
-Take Action
-```
-
----
-
-# 🚀 Installation
+# 📦 Installation
 
 ## 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-username/wumpus-world-ai.git
-cd wumpus-world-ai
+git clone https://github.com/your-username/serene-ai-chatbot.git
+cd serene-ai-chatbot
 ```
 
 ---
@@ -303,118 +251,98 @@ cd wumpus-world-ai
 ## 2. Install Dependencies
 
 ```bash
-pip install pygame
+pip install -r requirements.txt
 ```
 
 ---
 
-## 3. Run the Game
+## 3. Add API Key
+
+Inside `app.py`:
+
+```python
+os.environ["GROQ_API_KEY"] = "YOUR_GROQ_API_KEY"
+```
+
+---
+
+## 4. Run Application
 
 ```bash
-python wumpus.py
+python app.py
 ```
 
 ---
 
-# 🌟 Technologies Used
+# 🌐 Access Application
+
+Open browser:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+# 📊 Example Conversation Flow
+
+```text
+User: I feel anxious and overwhelmed.
+
+↓ Emotion Detection
+
+Detected State: anxious
+
+↓ Bi-Directional Search
+
+anxious → neutral → okay → calm
+
+↓ Genetic Algorithm
+
+Optimizes:
+- calm tone
+- grounding technique
+- medium empathy
+
+↓ AI Response
+
+"Anxiety can make everything feel heavy right now..."
+```
+
+---
+
+# 🔬 Technologies Used
 
 * Python
-* Pygame
-* Artificial Intelligence
-* Breadth-First Search (BFS)
-* Knowledge-Based Systems
-* Procedural Audio Synthesis
-* Probability-Based Inference
+* Flask
+* Requests
+* Groq API
+* Llama 3.1
+* Genetic Algorithms
+* Graph Search Algorithms
 
 ---
 
-# 🎯 Learning Outcomes
+# 🎯 Future Improvements
 
-This project demonstrates concepts from:
-
-* Artificial Intelligence
-* Intelligent Agents
-* Search Algorithms
-* Knowledge Representation
-* Game Development
-* Human-Computer Interaction
-* Procedural Generation
-
----
-
-# 🔥 Advanced Features
-
-## Fog of War
-
-Unknown cells remain hidden until explored.
+* Voice support
+* Emotion graphs visualization
+* User authentication
+* Chat history database
+* Reinforcement Learning
+* Multi-language support
+* Therapist dashboard
+* Mobile application
 
 ---
 
-## Heatmap Visualization
+# ⚠️ Disclaimer
 
-Danger probabilities are visualized using colored overlays.
+This project is designed for emotional support and educational purposes only.
 
----
+It is **not** a replacement for professional mental health care, therapy, or medical diagnosis.
 
-## Intelligent Wumpus Detection
-
-The AI can infer the exact Wumpus location using stench patterns.
-
----
-
-## Smooth Animation System
-
-Player movement and effects are animated smoothly for better gameplay experience.
-
----
-
-# 📸 Gameplay Preview
-
-## Cave Exploration
-
-```text
-🟦 Player explores unknown cave
-💨 Breeze warns about pits
-🦨 Stench warns about Wumpus
-✨ Gold must be collected
-```
-
----
-
-## AI Solver
-
-```text
-AI observes clues
-↓
-Infers safe cells
-↓
-Calculates risks
-↓
-Navigates safely
-↓
-Finds gold & escapes
-```
-
----
-
-# ⚠️ Requirements
-
-* Python 3.9+
-* Pygame
-
----
-
-# 🔮 Future Improvements
-
-* Multiplayer support
-* Reinforcement Learning AI
-* Minimax-based Wumpus hunting
-* Procedural dungeon expansion
-* Difficulty modes
-* Save/Load system
-* Mobile version
-* Neural-network-based agent
-* 3D graphics version
+If someone is in crisis, please contact professional mental health services immediately.
 
 ---
 
@@ -424,10 +352,5 @@ Developed by Devansh Varma
 
 ---
 
-# ⭐ Support
-
-If you like this project, give it a ⭐ on GitHub!
-
 ```
 ```
-
