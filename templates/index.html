@@ -1,0 +1,459 @@
+{% raw %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Serene — AI Mental Health Chatbot</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d1117; --surface: #161b22; --surface2: #1c2330;
+  --border:  #2a3441; --text:    #e6edf3; --muted:    #8b949e;
+  --accent:  #7ee8a2; --accent2: #5bbdff; --accent3:  #f0a3ff;
+  --warn:    #ffb86c; --danger:  #ff6b6b;
+  --ubub:    #1f3045; --bbub:    #162032;
+  --r:       16px;    --mono:    'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;height:100vh;display:flex;overflow:hidden}
+
+/* ── Chat Panel ── */
+#chat{width:55%;display:flex;flex-direction:column;border-right:1px solid var(--border)}
+
+#hdr{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--surface)}
+.logo-ring{width:40px;height:40px;border-radius:50%;background:conic-gradient(var(--accent),var(--accent2),var(--accent3),var(--accent));display:flex;align-items:center;justify-content:center;animation:spin 8s linear infinite;flex-shrink:0}
+.logo-inner{width:30px;height:30px;background:var(--surface);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hdr-text h1{font-family:'DM Serif Display',serif;font-size:1.15rem;color:var(--accent)}
+.hdr-text p{font-size:.7rem;color:var(--muted)}
+.hdr-badges{margin-left:auto;display:flex;gap:6px}
+.badge{font-size:.62rem;font-family:var(--mono);padding:3px 8px;border-radius:20px;border:1px solid;letter-spacing:.04em}
+.badge.ag{color:var(--accent);border-color:var(--accent);background:rgba(126,232,162,.08)}
+.badge.ga{color:var(--accent3);border-color:var(--accent3);background:rgba(240,163,255,.08)}
+.badge.bd{color:var(--accent2);border-color:var(--accent2);background:rgba(91,189,255,.08)}
+#reset-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:5px 9px;font-size:.68rem;font-family:var(--mono);cursor:pointer;transition:all .2s;margin-left:8px}
+#reset-btn:hover{border-color:var(--danger);color:var(--danger)}
+#quit-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:5px 9px;font-size:.68rem;font-family:var(--mono);cursor:pointer;transition:all .2s;margin-left:4px}
+#quit-btn:hover{border-color:var(--danger);color:#fff;background:var(--danger)}
+
+#api-banner{padding:5px 20px;font-size:.66rem;font-family:var(--mono);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)}
+#api-banner.on{background:rgba(126,232,162,.06);color:var(--accent)}
+#api-banner.off{background:rgba(255,184,108,.06);color:var(--warn)}
+
+#msgs{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+#msgs::-webkit-scrollbar{width:4px}
+#msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.msg{display:flex;gap:9px;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px}
+.av.bot{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.av.user{background:var(--surface2);border:1px solid var(--border)}
+.bub{max-width:78%;padding:11px 15px;border-radius:var(--r);font-size:.86rem;line-height:1.65}
+.bub.bot{background:var(--bbub);border:1px solid var(--border);border-top-left-radius:4px}
+.bub.user{background:var(--ubub);border:1px solid #2c4a6a;border-top-right-radius:4px;color:#c9e1ff}
+.state-tag{display:inline-block;font-size:.62rem;font-family:var(--mono);color:var(--accent);background:rgba(126,232,162,.1);border:1px solid rgba(126,232,162,.25);padding:2px 7px;border-radius:10px;margin-bottom:5px}
+.coping{margin-top:9px;padding:7px 11px;background:rgba(255,184,108,.08);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;font-size:.78rem;color:#e8c88a}
+
+#inp-area{padding:14px 18px;border-top:1px solid var(--border);background:var(--surface);display:flex;gap:9px;align-items:flex-end}
+#inp-area textarea{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;padding:9px 13px;resize:none;outline:none;max-height:110px;min-height:40px;transition:border-color .2s}
+#inp-area textarea:focus{border-color:var(--accent)}
+#inp-area textarea::placeholder{color:var(--muted)}
+#send{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:11px;cursor:pointer;color:#0d1117;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s,opacity .15s}
+#send:hover{transform:scale(1.07)}
+#send:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── Welcome ── */
+#welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;color:var(--muted);text-align:center;padding:32px}
+#welcome .ico{font-size:2.8rem;margin-bottom:4px}
+#welcome h2{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--text)}
+#welcome p{font-size:.8rem;max-width:270px;line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px}
+.chip{font-size:.73rem;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;cursor:pointer;transition:all .2s;color:var(--muted)}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(126,232,162,.07)}
+
+/* ── Typing ── */
+.typing{display:flex;align-items:center;gap:4px;padding:9px 13px;background:var(--bbub);border:1px solid var(--border);border-radius:var(--r);border-top-left-radius:4px;width:fit-content}
+.d{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:db 1.2s infinite}
+.d:nth-child(2){animation-delay:.2s}.d:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+
+/* ── Insight Panel ── */
+#insight{width:45%;display:flex;flex-direction:column;background:var(--surface);overflow-y:auto}
+#insight::-webkit-scrollbar{width:4px}
+#insight::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.ins-hdr{padding:16px 18px 12px;border-bottom:1px solid var(--border);font-size:.68rem;font-family:var(--mono);color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+
+.card{margin:12px 14px 0;border:1px solid var(--border);border-radius:11px;overflow:hidden}
+.card-hdr{padding:9px 13px;display:flex;align-items:center;gap:7px;font-size:.68rem;font-family:var(--mono);font-weight:500;letter-spacing:.06em;text-transform:uppercase;background:var(--surface2);border-bottom:1px solid var(--border)}
+.dot{width:7px;height:7px;border-radius:50%}
+.card-body{padding:11px 13px}
+
+.peas-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:4px}
+.peas-cell{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 8px}
+.pl{font-size:.58rem;font-family:var(--mono);color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.pv{font-size:.7rem;color:var(--text);line-height:1.4}
+
+.prog-row{display:flex;align-items:center;gap:13px;margin-top:10px}
+.arc-wrap{position:relative;width:60px;height:60px;flex-shrink:0}
+.arc-wrap svg{width:60px;height:60px;transform:rotate(-90deg)}
+.arc-bg{fill:none;stroke:var(--surface2);stroke-width:6}
+.arc-fill{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-dasharray:151;stroke-dashoffset:151;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)}
+.arc-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-family:var(--mono);font-weight:500;color:var(--accent)}
+.prog-detail{font-size:.75rem;color:var(--muted);line-height:1.7}
+.prog-detail strong{color:var(--text)}
+
+.fit-wrap{margin:6px 0}
+.fit-lbl{display:flex;justify-content:space-between;font-size:.67rem;font-family:var(--mono);color:var(--muted);margin-bottom:3px}
+.fit-bg{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.fit-fill{height:100%;background:linear-gradient(90deg,var(--accent3),var(--accent));border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+#ga-canvas{width:100%;height:65px;margin-top:6px}
+.chips2{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.chip2{font-size:.65rem;font-family:var(--mono);padding:3px 7px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.chip2 span{color:var(--text)}
+
+.path-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:.68rem;font-family:var(--mono)}
+.pn{padding:3px 7px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);transition:all .3s}
+.pn.cur{background:rgba(126,232,162,.15);border-color:var(--accent);color:var(--accent)}
+.pn.goal{background:rgba(91,189,255,.15);border-color:var(--accent2);color:var(--accent2)}
+.pa{color:var(--muted)}
+.therapy-box{display:none;margin-top:9px;padding:7px 11px;background:rgba(91,189,255,.07);border-left:3px solid var(--accent2);border-radius:0 8px 8px 0;font-size:.76rem;color:#90d0ff}
+
+/* State colours */
+.s-suicidal{background:rgba(255,107,107,.15);border-color:#ff6b6b;color:#ff6b6b}
+.s-depressed{background:rgba(120,80,200,.15);border-color:#9b68d6;color:#c39bff}
+.s-hopeless{background:rgba(140,80,180,.15);border-color:#a070c0;color:#d0a0ff}
+.s-sad{background:rgba(91,130,200,.15);border-color:#6090d0;color:#90c0ff}
+.s-lonely{background:rgba(70,110,180,.15);border-color:#5080c0;color:#80b0ff}
+.s-anxious{background:rgba(255,160,80,.15);border-color:#ffa050;color:#ffc890}
+.s-stressed{background:rgba(255,184,108,.15);border-color:var(--warn);color:var(--warn)}
+.s-tired{background:rgba(150,130,100,.15);border-color:#a09060;color:#c8b080}
+.s-neutral{background:rgba(140,148,158,.15);border-color:var(--muted);color:var(--muted)}
+.s-calm{background:rgba(126,232,162,.15);border-color:var(--accent);color:var(--accent)}
+.s-happy{background:rgba(90,210,255,.15);border-color:var(--accent2);color:var(--accent2)}
+.s-joyful{background:rgba(255,215,0,.15);border-color:#ffd700;color:#ffe066}
+.s-peaceful{background:rgba(160,220,255,.15);border-color:#a0dcff;color:#c0eaff}
+.s-content{background:rgba(100,200,120,.15);border-color:#64c878;color:#90e0a0}
+.s-relaxed{background:rgba(80,200,160,.15);border-color:#50c8a0;color:#80e8c0}
+.s-okay{background:rgba(100,180,200,.15);border-color:#64c8d0;color:#90e0e8}
+
+.pad{height:14px}
+@media(max-width:900px){#insight{display:none}#chat{width:100%;border-right:none}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LEFT — CHAT ═══════════ -->
+<div id="chat">
+  <div id="hdr">
+    <div class="logo-ring"><div class="logo-inner">🌿</div></div>
+    <div class="hdr-text"><h1>Serene</h1><p>AI Mental Health Companion</p></div>
+    <div class="hdr-badges">
+      <span class="badge ag">Agent</span>
+      <span class="badge ga">GA</span>
+      <span class="badge bd">BDS</span>
+    </div>
+    <button id="reset-btn" onclick="resetSession()">↺ Reset</button>
+    <button id="quit-btn" onclick="quitApp()">⏻ Quit</button>
+  </div>
+
+  <div id="api-banner" class="off">
+    <span id="api-dot">●</span><span id="api-lbl">Checking…</span>
+  </div>
+
+  <div id="msgs">
+    <div id="welcome">
+      <div class="ico">🌿</div>
+      <h2>Hello, I'm Serene</h2>
+      <p>A safe, judgement-free space. Tell me how you're feeling today.</p>
+      <div class="chips">
+        <div class="chip" onclick="quick('I am feeling really anxious lately')">😰 Anxious</div>
+        <div class="chip" onclick="quick('I feel so sad and empty')">😢 Sad</div>
+        <div class="chip" onclick="quick('I am stressed with my studies')">📚 Stressed</div>
+        <div class="chip" onclick="quick('I feel very lonely')">😔 Lonely</div>
+        <div class="chip" onclick="quick('I am feeling calm today')">🌊 Calm</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="inp-area">
+    <textarea id="txt" placeholder="Share what's on your mind…" rows="1"
+      onkeydown="onKey(event)" oninput="resize(this)"></textarea>
+    <button id="send" onclick="send()">➤</button>
+  </div>
+</div>
+
+<!-- ═══════════ RIGHT — INSIGHTS ═══════════ -->
+<div id="insight">
+  <div class="ins-hdr">⚙ AI Insights Dashboard</div>
+
+  <!-- Agent Card -->
+  <div class="card">
+    <div class="card-hdr"><div class="dot" style="background:var(--accent)"></div>🤖 Intelligent Agent — PEAS</div>
+    <div class="card-body">
+      <div class="peas-grid">
+        <div class="peas-cell"><div class="pl">Percept</div><div class="pv" id="p-percept">Waiting…</div></div>
+        <div class="peas-cell"><div class="pl">State</div><div class="pv" id="p-state">—</div></div>
+        <div class="peas-cell"><div class="pl">Action</div><div class="pv" id="p-action">—</div></div>
+        <div class="peas-cell"><div class="pl">Goal</div><div class="pv" id="p-goal">calm / happy 🎯</div></div>
+      </div>
+      <div class="prog-row">
+        <div class="arc-wrap">
+          <svg viewBox="0 0 60 60"><circle class="arc-bg" cx="30" cy="30" r="24"/><circle class="arc-fill" cx="30" cy="30" r="24" id="arc"/></svg>
+          <div class="arc-txt" id="arc-pct">0%</div>
+        </div>
+        <div class="prog-detail">
+          Turn <strong id="turn-n">0</strong><br>
+          State: <strong id="cur-st">—</strong><br>
+          Trajectory: <strong id="traj">—</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GA Card -->
+  <div class="card">
+    <div class="card-hdr"><div class="dot" style="background:var(--accent3)"></div>🧬 Genetic Algorithm — Response Evolution</div>
+    <div class="card-body">
+      <div class="fit-wrap">
+        <div class="fit-lbl"><span>Response Fitness</span><span id="fit-val">—</span></div>
+        <div class="fit-bg"><div class="fit-fill" id="fit-bar" style="width:0%"></div></div>
+      </div>
+      <canvas id="ga-canvas"></canvas>
+      <div class="chips2">
+        <div class="chip2">Gens: <span id="ga-gens">—</span></div>
+        <div class="chip2">Tone: <span id="ga-tone">—</span></div>
+        <div class="chip2">Technique: <span id="ga-tech">—</span></div>
+        <div class="chip2">Pop: <span>8</span></div>
+        <div class="chip2">Elitism: <span>Top 2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BDS Card -->
+  <div class="card">
+    <div class="card-hdr"><div class="dot" style="background:var(--accent2)"></div>🔁 Bi-Directional Search — Therapy Path</div>
+    <div class="card-body">
+      <div class="path-row" id="bds-path">
+        <span style="color:var(--muted);font-size:.7rem">Path appears after first message…</span>
+      </div>
+      <div class="chips2" style="margin-top:9px">
+        <div class="chip2">Explored: <span id="bds-nodes">—</span> nodes</div>
+        <div class="chip2">Length: <span id="bds-len">—</span></div>
+      </div>
+      <div class="therapy-box" id="tb"><span id="tb-txt"></span></div>
+    </div>
+  </div>
+
+  <div class="pad"></div>
+</div>
+
+<script>
+// ── GA Chart ──
+const cvs = document.getElementById('ga-canvas');
+const ctx = cvs.getContext('2d');
+let gaHist = [];
+
+function drawChart(h) {
+  const W = cvs.offsetWidth, H = cvs.offsetHeight;
+  cvs.width = W; cvs.height = H;
+  ctx.clearRect(0,0,W,H);
+  if (!h || h.length < 2) return;
+  const pad = 5, max = Math.max(...h,.01), min = Math.max(0,Math.min(...h)-.05), range = max-min||.01;
+  const tx = i => pad + (i/(h.length-1))*(W-2*pad);
+  const ty = v => H-pad-((v-min)/range)*(H-2*pad);
+  ctx.strokeStyle='#2a3441'; ctx.lineWidth=1;
+  for(let i=0;i<=3;i++){const y=pad+(i/3)*(H-2*pad);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(240,163,255,.3)');g.addColorStop(1,'rgba(240,163,255,0)');
+  ctx.beginPath();ctx.moveTo(tx(0),ty(h[0]));h.forEach((v,i)=>ctx.lineTo(tx(i),ty(v)));ctx.lineTo(tx(h.length-1),H);ctx.lineTo(tx(0),H);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle='#f0a3ff';ctx.lineWidth=2;ctx.lineJoin='round';ctx.moveTo(tx(0),ty(h[0]));h.forEach((v,i)=>ctx.lineTo(tx(i),ty(v)));ctx.stroke();
+  h.forEach((v,i)=>{ctx.beginPath();ctx.arc(tx(i),ty(v),3,0,Math.PI*2);ctx.fillStyle='#f0a3ff';ctx.fill();});
+}
+
+// ── Arc Progress ──
+function setArc(pct, state) {
+  const circ   = 151;
+  const arcEl  = document.getElementById('arc');
+  const pctEl  = document.getElementById('arc-pct');
+  const fulfilled = ['calm','happy','peaceful','joyful'].includes(state);
+  arcEl.style.strokeDashoffset = circ - (pct/100)*circ;
+  arcEl.style.stroke = fulfilled ? '#ffd700' : 'var(--accent)';
+  pctEl.style.color  = fulfilled ? '#ffd700' : 'var(--accent)';
+  pctEl.textContent  = fulfilled ? '✓' : pct + '%';
+  document.getElementById('p-goal').textContent = fulfilled ? '🎯 Goal Reached!' : 'calm / happy 🎯';
+}
+
+// ── BDS Path ──
+function renderPath(path) {
+  const c = document.getElementById('bds-path');
+  if (!path || !path.length) return;
+  c.innerHTML = '';
+  path.forEach((n,i) => {
+    const s = document.createElement('span');
+    s.className = 'pn' + (i===0?' cur':(i===path.length-1?' goal':''));
+    s.textContent = n; c.appendChild(s);
+    if (i < path.length-1) {
+      const a = document.createElement('span'); a.className='pa'; a.textContent=' → '; c.appendChild(a);
+    }
+  });
+  document.getElementById('bds-len').textContent = path.length;
+}
+
+// ── Update Insights ──
+function updateInsights(d) {
+  document.getElementById('p-percept').textContent = d.current_state;
+  document.getElementById('p-state').innerHTML = `<span class="pn s-${d.current_state}">${d.current_state}</span>`;
+  document.getElementById('p-action').textContent = d.therapy_step || '—';
+  document.getElementById('turn-n').textContent = d.turn || 0;
+  document.getElementById('cur-st').textContent = d.current_state;
+  const s = d.summary || {};
+  if (s.progress !== undefined) setArc(s.progress, d.current_state);
+  document.getElementById('traj').textContent = (s.trajectory||[]).slice(-4).join(' → ') || '—';
+
+  const pct = Math.round((d.fitness||0)*100);
+  document.getElementById('fit-val').textContent = (d.fitness||0).toFixed(4);
+  document.getElementById('fit-bar').style.width = pct + '%';
+  document.getElementById('ga-gens').textContent = d.ga_history ? d.ga_history.length : '—';
+  document.getElementById('ga-tone').textContent = d.tone || '—';
+  document.getElementById('ga-tech').textContent = d.ga_technique || '—';
+  if (d.ga_history) { gaHist = d.ga_history; setTimeout(()=>drawChart(gaHist),50); }
+
+  renderPath(d.bds_path);
+  document.getElementById('bds-nodes').textContent = d.nodes_explored ?? '—';
+  if (d.therapy_step) {
+    document.getElementById('tb').style.display = 'block';
+    document.getElementById('tb-txt').textContent = '🔵 Next: ' + d.therapy_step;
+  }
+
+  const banner = document.getElementById('api-banner');
+  const lbl    = document.getElementById('api-lbl');
+  if (d.using_api) {
+    banner.className = 'on';
+    lbl.textContent  = '● Groq (Llama 3) — GA evolved prompt → Llama 3 generated this response';
+  } else {
+    banner.className = 'off';
+    lbl.textContent  = '⚠ Fallback mode — GA selected response from pool (add API key to enable Groq)';
+  }
+}
+
+// ── Status check on load ──
+async function checkStatus() {
+  try {
+    const d = await (await fetch('/status')).json();
+    const banner = document.getElementById('api-banner');
+    const lbl    = document.getElementById('api-lbl');
+    banner.className = d.api_enabled ? 'on' : 'off';
+    lbl.textContent  = d.api_enabled
+      ? '● Groq API active — GA evolves prompt strategy → Llama 3 generates responses'
+      : '⚠ No API key — running in fallback mode (GA selects from response pool)';
+  } catch(e) {}
+}
+checkStatus();
+
+// ── Chat ──
+const msgs  = document.getElementById('msgs');
+const txtEl = document.getElementById('txt');
+const sendEl= document.getElementById('send');
+
+function hideWelcome(){ const w=document.getElementById('welcome'); if(w) w.remove(); }
+
+function addMsg(role, text, data) {
+  hideWelcome();
+  const wrap = document.createElement('div'); wrap.className = 'msg ' + role;
+  const av   = document.createElement('div'); av.className   = 'av ' + role; av.textContent = role==='bot'?'🌿':'🧑';
+  const bub  = document.createElement('div'); bub.className  = 'bub ' + role;
+  if (role==='bot' && data) {
+    const t = document.createElement('span'); t.className = 'state-tag'; t.textContent = '🧠 ' + (data.current_state||'neutral'); bub.appendChild(t); bub.appendChild(document.createElement('br'));
+  }
+  const tx = document.createElement('span'); tx.textContent = text; bub.appendChild(tx);
+  if (role==='bot' && data && data.coping_tip && data.coping_tip.trim()) {
+    const tip = document.createElement('div'); tip.className = 'coping'; tip.textContent = '💡 ' + data.coping_tip; bub.appendChild(tip);
+  }
+  wrap.appendChild(av); wrap.appendChild(bub); msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  hideWelcome();
+  const w=document.createElement('div'); w.className='msg bot'; w.id='typing';
+  const av=document.createElement('div'); av.className='av bot'; av.textContent='🌿';
+  const i=document.createElement('div'); i.className='typing'; i.innerHTML='<div class="d"></div><div class="d"></div><div class="d"></div>';
+  w.appendChild(av); w.appendChild(i); msgs.appendChild(w); msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){ const t=document.getElementById('typing'); if(t) t.remove(); }
+
+async function send() {
+  const text = txtEl.value.trim();
+  if (!text) return;
+  addMsg('user', text, null);
+  txtEl.value = ''; resize(txtEl);
+  sendEl.disabled = true; showTyping();
+  try {
+    const res  = await fetch('/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});
+    const data = await res.json();
+    removeTyping(); addMsg('bot', data.response || data.text, data); updateInsights(data);
+  } catch(e) {
+    removeTyping(); addMsg('bot','Something went wrong. Please try again.',null);
+  } finally { sendEl.disabled=false; txtEl.focus(); }
+}
+
+function quick(t){ txtEl.value=t; send(); }
+
+async function resetSession() {
+  await fetch('/reset',{method:'POST'});
+  msgs.innerHTML='';
+  // Reset BDS path
+  document.getElementById('bds-path').innerHTML='<span style="color:var(--muted);font-size:.7rem">Path appears after first message…</span>';
+  document.getElementById('bds-nodes').textContent='—';
+  document.getElementById('bds-len').textContent='—';
+  document.getElementById('tb').style.display='none';
+  // Reset GA
+  document.getElementById('fit-bar').style.width='0%';
+  document.getElementById('fit-val').textContent='—';
+  document.getElementById('ga-gens').textContent='—';
+  document.getElementById('ga-tone').textContent='—';
+  document.getElementById('ga-tech').textContent='—';
+  gaHist=[]; drawChart([]);
+  // Reset Agent
+  document.getElementById('p-percept').textContent='Waiting…';
+  document.getElementById('p-state').innerHTML='—';
+  document.getElementById('p-action').textContent='—';
+  document.getElementById('p-goal').textContent='calm / happy 🎯';
+  document.getElementById('turn-n').textContent='0';
+  document.getElementById('cur-st').textContent='—';
+  document.getElementById('traj').textContent='—';
+  // Reset arc fully
+  const arcEl = document.getElementById('arc');
+  arcEl.style.strokeDashoffset = '151';
+  arcEl.style.stroke = 'var(--accent)';
+  const pctEl = document.getElementById('arc-pct');
+  pctEl.textContent = '0%';
+  pctEl.style.color = 'var(--accent)';
+  // Restore welcome screen
+  const w=document.createElement('div'); w.id='welcome';
+  w.innerHTML=`<div class="ico">🌿</div><h2>Hello, I'm Serene</h2><p>A safe, judgement-free space. Tell me how you're feeling today.</p><div class="chips"><div class="chip" onclick="quick('I am feeling really anxious lately')">😰 Anxious</div><div class="chip" onclick="quick('I feel so sad and empty')">😢 Sad</div><div class="chip" onclick="quick('I am stressed with my studies')">📚 Stressed</div><div class="chip" onclick="quick('I feel very lonely')">😔 Lonely</div><div class="chip" onclick="quick('I am feeling calm today')">🌊 Calm</div></div>`;
+  msgs.appendChild(w);
+  checkStatus();
+}
+
+async function quitApp() {
+  if (!confirm('Are you sure you want to quit Serene?')) return;
+  await fetch('/quit', {method:'POST'});
+  document.body.innerHTML = `
+    <div style="height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;background:#0d1117;color:#8b949e;font-family:'DM Sans',sans-serif;gap:12px;text-align:center">
+      <div style="font-size:3rem">🌿</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:#e6edf3">Take care of yourself</div>
+      <div style="font-size:.85rem">Serene has been shut down. You can close this window.</div>
+    </div>`;
+}
+
+function onKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} }
+function resize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
+window.addEventListener('resize',()=>{ if(gaHist.length) drawChart(gaHist); });
+</script>
+</body>
+</html>
+{% endraw %}
